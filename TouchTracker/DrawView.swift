@@ -17,6 +17,7 @@ class DrawView: UIView {
         
         let path = UIBezierPath()
         path.lineWidth = 10
+        path.lineCapStyle = kCGLineCapRound
         path.moveToPoint(line.begin)
         path.moveToPoint(line.end)
         path.stroke()
@@ -38,6 +39,47 @@ class DrawView: UIView {
             strokeLine(line)
             
         }
+        
+    }
+    
+    override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+        
+        if let touch = touches.anyObject() as? UITouch {
+
+            let location = touch.locationInView(self)
+            currentLine = Line(begin: location, end: location)
+            setNeedsDisplay()
+            
+        }
+        
+    }
+    
+    override func touchesMoved(touches: NSSet, withEvent event: UIEvent) {
+        
+        if let touch = touches.anyObject() as? UITouch {
+            
+            let location = touch.locationInView(self)
+            currentLine?.end = location
+            setNeedsDisplay()
+            
+        }
+        
+    }
+    
+    override func touchesEnded(touches: NSSet, withEvent event: UIEvent) {
+        
+        if var line = currentLine {
+            
+            let touch = touches.anyObject() as UITouch
+            let location = touch.locationInView(self)
+            line.end = location
+            
+            finishedLines.append(line)
+            
+        }
+        
+        currentLine = nil
+        setNeedsDisplay()
         
     }
     
