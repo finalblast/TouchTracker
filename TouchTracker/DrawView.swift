@@ -10,32 +10,63 @@ import UIKit
 
 class DrawView: UIView {
     
-    var currentLine: Line?
+    var currentLines = [NSValue: Line]()
     var finishedLines = [Line]()
 
-    func strokeLine(line: Line) {
+    @IBInspectable var currentLineColor: UIColor = UIColor.redColor() {
         
+        didSet {
+            
+            setNeedsDisplay()
+            
+        }
+        
+    }
+    
+    @IBInspectable var finishedLineColor: UIColor = UIColor.blackColor() {
+        
+        didSet {
+            
+            setNeedsDisplay()
+            
+        }
+        
+    }
+    
+    @IBInspectable var lineThickness: CGFloat = 10 {
+        
+        didSet {
+            
+            setNeedsDisplay()
+            
+        }
+        
+    }
+    
+    
+    func strokeLine(line: Line) {
+
         let path = UIBezierPath()
-        path.lineWidth = 10
+        path.lineWidth = lineThickness
         path.lineCapStyle = kCGLineCapRound
         path.moveToPoint(line.begin)
-        path.moveToPoint(line.end)
+        path.addLineToPoint(line.end)
         path.stroke()
         
     }
     
     override func drawRect(rect: CGRect) {
         
-        UIColor.blackColor().setStroke()
+        finishedLineColor.setStroke()
         for line in finishedLines {
             
             strokeLine(line)
             
         }
         
-        if let line = currentLine {
+        currentLineColor.setStroke()
+        for (_, line) in currentLines {
             
-            UIColor.redColor().setStroke()
             strokeLine(line)
             
         }
@@ -44,41 +75,54 @@ class DrawView: UIView {
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
         
-        if let touch = touches.anyObject() as? UITouch {
-
+        for touch in touches {
+            
             let location = touch.locationInView(self)
-            currentLine = Line(begin: location, end: location)
-            setNeedsDisplay()
+            let newLine = Line(begin: location, end: location)
+            let key = NSValue(nonretainedObject: touch)
+            currentLines[key] = newLine
             
         }
+        
+        setNeedsDisplay()
         
     }
     
     override func touchesMoved(touches: NSSet, withEvent event: UIEvent) {
         
-        if let touch = touches.anyObject() as? UITouch {
+        for touch in touches {
             
-            let location = touch.locationInView(self)
-            currentLine?.end = location
-            setNeedsDisplay()
+            let key = NSValue(nonretainedObject: touch)
+            currentLines[key]?.end = touch.locationInView(self)
             
         }
+        
+        setNeedsDisplay()
         
     }
     
     override func touchesEnded(touches: NSSet, withEvent event: UIEvent) {
         
-        if var line = currentLine {
+        for touch in touches {
             
-            let touch = touches.anyObject() as UITouch
-            let location = touch.locationInView(self)
-            line.end = location
-            
-            finishedLines.append(line)
+            let key = NSValue(nonretainedObject: touch)
+            if var line = currentLines[key] {
+                
+                line.end = touch.locationInView(self)
+                finishedLines.append(line)
+                currentLines.removeValueForKey(key)
+                
+            }
             
         }
+
+        setNeedsDisplay()
         
-        currentLine = nil
+    }
+    
+    override func touchesCancelled(touches: NSSet!, withEvent event: UIEvent!) {
+        
+        currentLines.removeAll()
         setNeedsDisplay()
         
     }
