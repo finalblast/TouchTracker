@@ -13,5 +13,6 @@ struct Line {
     
     var begin = CGPoint.zeroPoint
     var end = CGPoint.zeroPoint
+    var thickness: Float
     
 }

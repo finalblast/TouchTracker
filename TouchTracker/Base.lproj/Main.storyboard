@@ -23,9 +23,6 @@
                             <userDefinedRuntimeAttribute type="color" keyPath="finishedLineColor">
                                 <color key="value" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                             </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="number" keyPath="lineThickness">
-                                <real key="value" value="5"/>
-                            </userDefinedRuntimeAttribute>
                         </userDefinedRuntimeAttributes>
                     </view>
                 </viewController>
